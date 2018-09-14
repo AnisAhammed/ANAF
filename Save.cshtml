@@ -1,0 +1,140 @@
+﻿@model UniversityManagementSystem.Models.Classroom
+@{
+    ViewBag.Title = "Save";
+}
+
+<link href="~/Content/mobiscroll-2.13.2.full.min.css" rel="stylesheet" />
+<h2>Allocate Classroom Information</h2><br />
+
+@if (ViewBag.Message != null)
+{
+    <p style="font-size:20px;color:olive">@ViewBag.Message</p>
+}
+
+<div class="row">
+    <div class="col-sm-3">
+
+    </div>
+    <div class="col-sm-6">
+        <form method="POST" id="saveClassScedule">
+            <table class="table">
+                <tr>
+                    <td><label for="DepartmentId">Department:</label></td>
+                    <td>
+                        <select id="DepartmentId" name="DepartmentId" class="form-control">
+                            <option value="">Select.....</option>
+                            @foreach (var dept in ViewBag.Departments)
+                            {
+                                <option value="@dept.DepartmentId">@dept.DepartmentName</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="CourseId">Course:</label></td>
+                    <td>
+                        <select id="CourseId" name="CourseId" class="form-control">
+                            <option value="">Select.....</option>
+
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="RoomId">Room:</label></td>
+                    <td>
+                        <select id="RoomId" name="RoomId" class="form-control">
+                            <option value="">Select.....</option>
+                            @foreach (var room in ViewBag.Rooms)
+                            {
+                                <option value="@room.RoomId">@room.RoomNo</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="DayId">Day:</label></td>
+                    <td>
+                        <select id="DayId" name="DayId" class="form-control">
+                            <option value="">Select.....</option>
+                            @foreach (var day in ViewBag.Days)
+                            {
+                                <option value="@day.DayId">@day.DayName</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="StartTime">Form Time:</label></td>
+                    <td><input id="StartTime" name="StartTime" type="text" class="control-label col-md-8" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Endtime">To Time:</label></td>
+                    <td><input id="Endtime" name="Endtime" type="text" class="control-label col-md-8" /></td>                    
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="Save" class="btn btn-default" /></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/mobiscroll-2.13.2.full.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#StartTime").mobiscroll({ preset: 'time', 'theme': 'android' });
+            $("#Endtime").mobiscroll({ preset: 'time', 'theme': 'android' });
+
+            $("#saveClassScedule").validate({
+                rules: {
+                    CourseId: "required",
+                    RoomId: "required",
+                    DayId: "required",
+                    StartTime: "required",
+                    DepartmentId: "required",
+                    Endtime: "required"
+
+                },
+                messages: {
+                    CourseId: "Please Select  Course!",
+
+                    RoomId: "Please Select room!",
+                    DayId: "Please Select day!",
+                    StartTime: "Select Start time!",
+                    DepartmentId: "Please select department!",
+                    Endtime: "Please select End time!"
+                }
+            });
+
+            $("#DepartmentId").change(function () {
+                var deptId = $("#DepartmentId").val();
+                $("#CourseId").empty();
+                $("#CourseId").append('<option value="">Select Course</option>');
+
+                var json = { departmentId: deptId };
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetCoursesByDepartmentId", "Classroom")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        //alert(data);
+                        $.each(data, function (key, value) {
+                            //alert(key);
+                            $("#CourseId").append('<option value=' + value.CourseId + '>' + value.CourseCode + '</option>');
+
+                        });
+                    }
+                });
+
+            });
+
+        });
+    </script>
+}
